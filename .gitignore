@@ -1,0 +1,25 @@
+# Helm chart dependencies
+charts/
+*.tgz
+
+# Helm chart lock files
+Chart.lock
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+
+# Helm values override files (optional - uncomment if you want to ignore them)
+# values-*.yaml
+# values.local.yaml
