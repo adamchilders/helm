@@ -68,6 +68,11 @@ varnish:
       cpu: 200m
       memory: 512Mi
 
+# Service configuration (for future extensibility)
+service:
+  type: ClusterIP
+  port: 80
+
 ingress:
   enabled: false
   className: ""
