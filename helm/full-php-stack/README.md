@@ -1,11 +1,11 @@
 # php-stack
 
 A Helm chart to deploy a scalable PHP 8.4 stack with:
-- Bitnami PHP-FPM (with optional PHP extensions)
-- MySQL on Longhorn
-- Redis
-- Varnish frontend
-- NFS-backed uploads
+- Custom PHP-FPM deployment (Bitnami image with optional PHP extensions)
+- MySQL database (Bitnami subchart with Longhorn storage)
+- Redis cache (Bitnami subchart)
+- Varnish frontend cache
+- NFS-backed uploads storage
 
 ---
 ## Prerequisites
