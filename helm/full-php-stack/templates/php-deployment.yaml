@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "php-stack.fullname" . }}-php
+  labels:
+    {{- include "php-stack.php.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.php.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "php-stack.php.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "php-stack.php.selectorLabels" . | nindent 8 }}
+    spec:
+      initContainers:
+        {{- if .Values.php.gitRepoUrl }}
+        - name: clone-repo
+          image: alpine/git
+          env:
+            - name: GIT_REPO_URL
+              value: "{{ .Values.php.gitRepoUrl }}"
+            - name: GIT_REPO_TAG
+              value: "{{ .Values.php.gitRepoTag }}"
+          volumeMounts:
+            - name: code
+              mountPath: {{ .Values.php.gitDeployPath }}
+          command:
+            - sh
+            - -c
+            - |
+              if [ -n "$GIT_REPO_URL" ]; then
+                git clone --depth 1 --branch "$GIT_REPO_TAG" "$GIT_REPO_URL" {{ .Values.php.gitDeployPath }}
+              fi
+        {{- end }}
+      containers:
+        - name: php-fpm
+          image: "{{ .Values.php.image.registry }}/{{ .Values.php.image.repository }}:{{ .Values.php.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: php-fpm
+              containerPort: 9000
+              protocol: TCP
+          volumeMounts:
+            - name: code
+              mountPath: {{ .Values.php.gitDeployPath }}
+            {{- if .Values.php.uploads.enabled }}
+            - name: uploads
+              mountPath: {{ .Values.php.gitDeployPath }}/uploads
+            {{- end }}
+          resources:
+            {{- toYaml .Values.php.resources | nindent 12 }}
+          env:
+            - name: PHP_ENABLE_OPCACHE
+              value: "1"
+            {{- range .Values.php.extraModules }}
+            - name: PHP_ENABLE_{{ . | upper }}
+              value: "1"
+            {{- end }}
+      volumes:
+        - name: code
+          emptyDir: {}
+        {{- if .Values.php.uploads.enabled }}
+        - name: uploads
+          persistentVolumeClaim:
+            claimName: {{ include "php-stack.fullname" . }}-uploads
+        {{- end }}

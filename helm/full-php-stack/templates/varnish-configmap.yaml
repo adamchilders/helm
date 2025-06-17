@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "php-stack.fullname" . }}-varnish-config
+  labels:
+    {{- include "php-stack.varnish.labels" . | nindent 4 }}
+data:
+  default.vcl: |
+    vcl 4.1;
+
+    backend default {
+        .host = "{{ include "php-stack.fullname" . }}-php";
+        .port = "{{ .Values.varnish.defaultBackendPort }}";
+    }
+
+    sub vcl_recv {
+        # Remove any cookies for static files
+        if (req.url ~ "\.(css|js|png|gif|jp(e)?g|swf|ico|pdf|mov|fla|zip|rar)$") {
+            unset req.http.cookie;
+        }
+        
+        # Pass through POST requests and those with authorization
+        if (req.method != "GET" && req.method != "HEAD") {
+            return (pass);
+        }
+        
+        if (req.http.Authorization) {
+            return (pass);
+        }
+        
+        return (hash);
+    }
+
+    sub vcl_backend_response {
+        # Cache static files for 1 hour
+        if (bereq.url ~ "\.(css|js|png|gif|jp(e)?g|swf|ico|pdf|mov|fla|zip|rar)$") {
+            set beresp.ttl = 1h;
+        }
+        
+        # Cache HTML for 5 minutes
+        if (beresp.http.content-type ~ "text/html") {
+            set beresp.ttl = 5m;
+        }
+        
+        return (deliver);
+    }
+
+    sub vcl_deliver {
+        # Add cache hit/miss header for debugging
+        if (obj.hits > 0) {
+            set resp.http.X-Cache = "HIT";
+        } else {
+            set resp.http.X-Cache = "MISS";
+        }
+        
+        return (deliver);
+    }

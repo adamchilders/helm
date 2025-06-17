@@ -1,0 +1,17 @@
+apiVersion: v2
+name: php-stack
+description: A reusable PHP 8.4 stack with MySQL on Longhorn, Redis, Varnish, and NFS-backed storage for uploads
+version: 0.1.0
+type: application
+
+dependencies:
+  - name: php-fpm
+    alias: php
+    version: "20.0.2"
+    repository: "https://charts.bitnami.com/bitnami"
+  - name: mysql
+    version: "8.5.1"
+    repository: "https://charts.bitnami.com/bitnami"
+  - name: redis
+    version: "17.7.2"
+    repository: "https://charts.bitnami.com/bitnami"

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "php-stack.fullname" . }}-php
+  labels:
+    {{- include "php-stack.php.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9000
+      targetPort: php-fpm
+      protocol: TCP
+      name: php-fpm
+  selector:
+    {{- include "php-stack.php.selectorLabels" . | nindent 4 }}

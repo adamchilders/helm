@@ -1,0 +1,16 @@
+{{- if .Values.php.uploads.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "php-stack.fullname" . }}-uploads
+  labels:
+    {{- include "php-stack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: uploads
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: {{ .Values.php.uploads.storageClass }}
+  resources:
+    requests:
+      storage: {{ .Values.php.uploads.size }}
+{{- end }}

@@ -1,0 +1,92 @@
+# replicaCount now scoped under subcharts; example for PHP
+php:
+  replicaCount: 2
+  ## Use Bitnami php-fpm image
+  image:
+    registry: docker.io
+    repository: bitnami/php-fpm
+    tag: 8.4.0
+  ## Enable additional PHP extensions
+  extraModules:
+    - xml
+    - zip
+  gitRepoUrl: ""
+  gitRepoTag: ""
+  gitDeployPath: /var/www/html
+  uploads:
+    enabled: true
+    storageClass: nfs-client
+    size: 10Gi
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
+mysql:
+  auth:
+    rootPassword: "changeme"
+    username: "appuser"
+    password: "changeme"
+    database: appdb
+  primary:
+    persistence:
+      storageClass: longhorn
+      size: 20Gi
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1Gi
+      limits:
+        cpu: 1
+        memory: 2Gi
+
+redis:
+  architecture: standalone
+  cluster:
+    enabled: false
+  password: ""
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 200m
+      memory: 512Mi
+
+varnish:
+  image: varnish:7
+  port: 80
+  defaultBackendPort: 9000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 200m
+      memory: 512Mi
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: chart.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart.example.com
+
+# Service account settings
+serviceAccount:
+  create: false
+  name: ""
+
+# Override names
+nameOverride: ""
+fullnameOverride: ""

@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "php-stack.fullname" . }}-varnish
+  labels:
+    {{- include "php-stack.varnish.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "php-stack.varnish.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "php-stack.varnish.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: varnish
+          image: "{{ .Values.varnish.image }}"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: {{ .Values.varnish.port }}
+              protocol: TCP
+          env:
+            - name: VARNISH_BACKEND_HOST
+              value: "{{ include "php-stack.fullname" . }}-php"
+            - name: VARNISH_BACKEND_PORT
+              value: "{{ .Values.varnish.defaultBackendPort }}"
+          resources:
+            {{- toYaml .Values.varnish.resources | nindent 12 }}
+          volumeMounts:
+            - name: varnish-config
+              mountPath: /etc/varnish/default.vcl
+              subPath: default.vcl
+      volumes:
+        - name: varnish-config
+          configMap:
+            name: {{ include "php-stack.fullname" . }}-varnish-config
