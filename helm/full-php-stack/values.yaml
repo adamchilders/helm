@@ -10,8 +10,8 @@ php:
   extraModules:
     - xml
     - zip
-  gitRepoUrl: ""  # Example: "https://github.com/your-username/your-php-app.git"
-  gitRepoTag: "main"  # Example: "main", "v1.0.0", "develop"
+  gitRepoUrl: "https://github.com/adamchilders/personal-portfolio-pla"
+  gitRepoTag: "main"
   gitDeployPath: /var/www/html
   uploads:
     enabled: true

@@ -17,11 +17,15 @@ spec:
       initContainers:
         - name: clone-repo
           image: alpine/git
+          envFrom:
+            - configMapRef:
+                name: {{ include "php-stack.fullname" . }}-git-config
+                optional: true
           env:
             - name: GIT_REPO_URL
-              value: ""  # Will be overridden by Rancher UI
+              value: "{{ .Values.php.gitRepoUrl }}"
             - name: GIT_REPO_TAG
-              value: "main"  # Will be overridden by Rancher UI
+              value: "{{ .Values.php.gitRepoTag }}"
           volumeMounts:
             - name: code
               mountPath: {{ .Values.php.gitDeployPath }}
@@ -58,13 +62,12 @@ spec:
             {{- end }}
           resources:
             {{- toYaml .Values.php.resources | nindent 12 }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "php-stack.fullname" . }}-git-config
           env:
             - name: PHP_ENABLE_OPCACHE
               value: "1"
-            - name: GIT_REPO_URL
-              value: ""  # Will be overridden by Rancher UI
-            - name: GIT_REPO_TAG
-              value: "main"  # Will be overridden by Rancher UI
             {{- range .Values.php.extraModules }}
             - name: PHP_ENABLE_{{ . | upper }}
               value: "1"
