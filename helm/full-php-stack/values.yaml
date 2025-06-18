@@ -74,18 +74,20 @@ service:
   port: 80
 
 ingress:
-  enabled: false
-  className: ""
-  annotations: {}
+  enabled: true
+  className: "nginx"  # or whatever ingress class you're using
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"  # for SSL certificates
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
   hosts:
-    - host: chart.example.com
+    - host: longterm.adamchilders.com
       paths:
         - path: /
           pathType: Prefix
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart.example.com
+  tls:
+    - secretName: longterm-adamchilders-tls
+      hosts:
+        - longterm.adamchilders.com
 
 # Service account settings
 serviceAccount:
