@@ -7,9 +7,9 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - port: 9000
-      targetPort: php-fpm
+    - port: 80
+      targetPort: http
       protocol: TCP
-      name: php-fpm
+      name: http
   selector:
     {{- include "php-stack.php.selectorLabels" . | nindent 4 }}

@@ -35,12 +35,12 @@ spec:
               fi
         {{- end }}
       containers:
-        - name: php-fpm
+        - name: php-apache
           image: "{{ .Values.php.image.registry }}/{{ .Values.php.image.repository }}:{{ .Values.php.image.tag }}"
           imagePullPolicy: IfNotPresent
           ports:
-            - name: php-fpm
-              containerPort: 9000
+            - name: http
+              containerPort: 80
               protocol: TCP
           volumeMounts:
             - name: code

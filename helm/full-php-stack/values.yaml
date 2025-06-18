@@ -1,11 +1,11 @@
 # replicaCount now scoped under subcharts; example for PHP
 php:
   replicaCount: 2
-  ## Use Bitnami php-fpm image
+  ## Use official PHP Apache image
   image:
     registry: docker.io
-    repository: bitnami/php-fpm
-    tag: 8.4.0
+    repository: php
+    tag: 8.3-apache
   ## Enable additional PHP extensions
   extraModules:
     - xml
@@ -59,7 +59,7 @@ redis:
 varnish:
   image: varnish:7
   port: 80
-  defaultBackendPort: 9000
+  defaultBackendPort: 80
   resources:
     requests:
       cpu: 100m
