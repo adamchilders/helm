@@ -16,6 +16,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: longterm-varnish
+            name: longterm-php-stack-varnish
             port:
               number: 80
