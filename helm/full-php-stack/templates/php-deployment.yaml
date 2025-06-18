@@ -15,14 +15,13 @@ spec:
         {{- include "php-stack.php.selectorLabels" . | nindent 8 }}
     spec:
       initContainers:
-        {{- if .Values.php.gitRepoUrl }}
         - name: clone-repo
           image: alpine/git
           env:
             - name: GIT_REPO_URL
-              value: "{{ .Values.php.gitRepoUrl }}"
+              value: ""  # Will be overridden by Rancher UI
             - name: GIT_REPO_TAG
-              value: "{{ .Values.php.gitRepoTag }}"
+              value: "main"  # Will be overridden by Rancher UI
           volumeMounts:
             - name: code
               mountPath: {{ .Values.php.gitDeployPath }}
@@ -30,10 +29,18 @@ spec:
             - sh
             - -c
             - |
-              if [ -n "$GIT_REPO_URL" ]; then
+              echo "Checking for git repository configuration..."
+              echo "GIT_REPO_URL: $GIT_REPO_URL"
+              echo "GIT_REPO_TAG: $GIT_REPO_TAG"
+              if [ -n "$GIT_REPO_URL" ] && [ "$GIT_REPO_URL" != "" ]; then
+                echo "Cloning repository: $GIT_REPO_URL (branch/tag: $GIT_REPO_TAG)"
                 git clone --depth 1 --branch "$GIT_REPO_TAG" "$GIT_REPO_URL" {{ .Values.php.gitDeployPath }}
+                echo "Repository cloned successfully!"
+                ls -la {{ .Values.php.gitDeployPath }}
+              else
+                echo "No git repository configured. Creating default index.php..."
+                echo "<?php phpinfo(); ?>" > {{ .Values.php.gitDeployPath }}/index.php
               fi
-        {{- end }}
       containers:
         - name: php-apache
           image: "{{ .Values.php.image.registry }}/{{ .Values.php.image.repository }}:{{ .Values.php.image.tag }}"
@@ -54,6 +61,10 @@ spec:
           env:
             - name: PHP_ENABLE_OPCACHE
               value: "1"
+            - name: GIT_REPO_URL
+              value: ""  # Will be overridden by Rancher UI
+            - name: GIT_REPO_TAG
+              value: "main"  # Will be overridden by Rancher UI
             {{- range .Values.php.extraModules }}
             - name: PHP_ENABLE_{{ . | upper }}
               value: "1"
