@@ -75,19 +75,21 @@ service:
 
 ingress:
   enabled: true
-  className: "nginx"  # or whatever ingress class you're using
+  className: "nginx"  # RKE2 nginx ingress class
   annotations:
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"  # for SSL certificates
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    # Remove cert-manager for now since we don't know if it's installed
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"  # Disable SSL redirect for now
+    nginx.ingress.kubernetes.io/rewrite-target: /
   hosts:
     - host: longterm.adamchilders.com
       paths:
         - path: /
           pathType: Prefix
-  tls:
-    - secretName: longterm-adamchilders-tls
-      hosts:
-        - longterm.adamchilders.com
+  tls: []
+  # Uncomment below when you have cert-manager installed
+  #  - secretName: longterm-adamchilders-tls
+  #    hosts:
+  #      - longterm.adamchilders.com
 
 # Service account settings
 serviceAccount:
